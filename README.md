@@ -28,4 +28,4 @@ Stripe.paymentRequest();
 
 ## License
 
-[Unlicense](LICENSE) &mdash; public domain.
+MIT
