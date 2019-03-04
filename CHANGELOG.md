@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/streamich/stripe-web/compare/v1.1.0...v1.1.1) (2019-03-04)
+
+
+### Bug Fixes
+
+* 🐛 require tslib as peer dep ([66a7b47](https://github.com/streamich/stripe-web/commit/66a7b47))
+
 # [1.1.0](https://github.com/streamich/stripe-web/compare/v1.0.0...v1.1.0) (2019-03-04)
 
 
