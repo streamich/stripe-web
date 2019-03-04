@@ -29,7 +29,11 @@
     "release": "semantic-release"
   },
   "keywords": [],
-  "dependencies": {},
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "tslib": "*"
+  },
   "devDependencies": {
     "@commitlint/cli": "^7.5.2",
     "@commitlint/config-conventional": "^7.5.0",
