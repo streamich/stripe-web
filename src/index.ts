@@ -43,7 +43,7 @@ export const getStripe = (): StripeGlobal => {
 export type StripeGlobal = (pk: string) => Stripe;
 
 export interface Stripe {
-  paymentRequest(options: StripePaymentRequestOptions): PaymentRequest;
+  paymentRequest(options: StripePaymentRequestOptions): StripePaymentRequest;
   elements(options?: StripeElementsOptions): StripeElements;
   createToken();
   createSource();
@@ -77,6 +77,13 @@ export interface StripePaymentRequestOptions {
   requestPayerPhone?: boolean;
   requestShipping?: boolean;
   shippingOptions?: StripeShippingOptions[];
+}
+
+export interface StripePaymentRequest {
+  canMakePayment();
+  show();
+  update();
+  on();
 }
 
 export type StripeElementsFontsOption = {
