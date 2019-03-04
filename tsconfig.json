@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2018",
+    "target": "es5",
     "module": "commonjs",
     "moduleResolution": "Node",
     "removeComments": true,
@@ -10,11 +10,10 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "importHelpers": true,
+    "importHelpers": false,
     "pretty": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "strict": true,
-    "jsx": "react",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "noEmitHelpers": true,
