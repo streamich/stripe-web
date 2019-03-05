@@ -71,7 +71,7 @@ export interface StripePaymentRequestOptions {
   country: string;
   currency: string;
   total: StripeAmount;
-  displayItems: StripeAmount[];
+  displayItems?: StripeAmount[];
   requestPayerName?: boolean;
   requestPayerEmail?: boolean;
   requestPayerPhone?: boolean;
@@ -80,10 +80,148 @@ export interface StripePaymentRequestOptions {
 }
 
 export interface StripePaymentRequest {
-  canMakePayment();
+  /**
+   * Returns a `Promise` that resolves with a payload if a browser payment API is
+   * available. If no API is available, it resolves with `null`.
+   */
+  canMakePayment(): Promise<null | true | {applePay: boolean}>;
+  /**
+   * Shows the browser’s payment interface. When using the `paymentRequestButton`
+   * Element, this is called for you under the hood. This method must be called
+   * as the result of a user interaction (for example, in a click handler).
+   */
   show();
-  update();
-  on();
+  /**
+   * PaymentRequest instances can be updated with an `options` object.
+   */
+  update(options: StripePaymentRequestUpdateOptions);
+  /**
+   * PaymentRequest instances receive events.
+   */
+  on(event: 'token' | 'source' | 'cancel' | 'shippingaddresschange' | 'shippingoptionchange', handler: (payload: any) => void);
+  on(event: 'token', handler: (payload: StripePaymentResponseToken) => void);
+  on(event: 'source', handler: (payload: StripePaymentResponseSource) => void);
+  on(event: 'cancel', handler: () => void);
+  on(event: 'shippingaddresschange', handler: (payload: {
+    updateWith: (...args: any[]) => any;
+    shippingAddress: object;
+  }) => void);
+  on(event: 'shippingoptionchange', handler: (pyaload: {
+    updateWith: (...args: any[]) => any;
+    shippingAddress: object;
+  }) => void);
+}
+
+export interface StripePaymentRequestUpdateOptions {
+  /**
+   * Three character currency code (e.g., `'usd'`).
+   */
+  currency?: string;
+  /**
+   * A payment item object. This payment item is shown to the customer in the
+   * browser‘s payment interface.
+   */
+  total?: StripeAmount;
+  /**
+   * An array of payment item objects. These payment items are shown as line items
+   * in the browser‘s payment interface. Note that the sum of the line item amounts
+   * does not need to add up to the `total` amount above.
+   */
+  displayItems?: StripeAmount[];
+  /**
+   * An array of ShippingOption objects. The first shipping option listed appears
+   * in the browser payment interface as the default option.
+   */
+  shippingOptions?: StripeShippingOptions[];
+}
+
+export interface StripePaymentResponseBase {
+  complete: (res: 'success' | 'fail' | 'invalid_payer_name' | 'invalid_payer_phone' | 'invalid_payer_email' | 'invalid_shipping_address') => void;
+  payerName: string;
+  payerEmail: string;
+  payerPhone: string;
+  shippingAddress: object;
+  shippingOption: object;
+  methodName: string;
+}
+
+export interface StripePaymentResponseToken extends StripePaymentResponseBase {
+  token: StripeTokenObject;
+}
+
+export interface StripePaymentResponseSource extends StripePaymentResponseBase {
+  source: StripeSourceObject;
+}
+
+/**
+ * This object is returned as the payload of the token and source event handlers.
+ */
+export type StripePaymentResponse = StripePaymentResponseToken | StripePaymentResponseSource;
+
+export interface StripeTokenObject {
+  /**
+   * Unique identifier for the object.
+   */
+  id: string;
+  /**
+   * String representing the object’s type. Objects of the same type share the same value.
+   */
+  object: 'token';
+  /**
+   * Hash describing the bank account.
+   */
+  bank_account: {
+    id: string;
+    object: 'bank_account';
+    account_holder_name: string;
+    account_holder_type: 'individual' | 'company';
+    bank_name: string;
+    country: string;
+    currency: string;
+    fingerprint: string;
+    last4: string;
+    routing_number: string;
+    status: 'new' | 'validated' | 'verified' | 'verification_failed' | 'errored';
+  };
+  /**
+   * Hash describing the card used to make the charge.
+   */
+  card: object;
+  client_ip: string;
+  created: string;
+  livemode: boolean;
+  type: 'account' | 'bank_account' | 'card' | 'pii';
+  used: boolean;
+}
+
+export interface StripeSourceObject {
+  /**
+   * Unique identifier for the object.
+   */
+  id: string;
+  /**
+   * String representing the object’s type. Objects of the same type share the same value.
+   */
+  object: 'source';
+  amount: number;
+  client_secret: string;
+  code_verification: {
+    attempts_remaining: number;
+    status: string;
+  };
+  created: string;
+  currency: string;
+  customer: string;
+  flow: 'redirect' | 'receiver' | 'code_verification' | 'none';
+  livemode: boolean;
+  metadata: object;
+  owner: object;
+  receiver: object;
+  redirect: object;
+  statement_descriptor: string;
+  status: string;
+  type: string;
+  usage: string;
 }
 
 export type StripeElementsFontsOption = {
