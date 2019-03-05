@@ -53,18 +53,25 @@ export interface Stripe {
   /**
    * See https://stripe.com/docs/stripe-js/reference#stripe-confirm-payment-intent
    */
-  confirmPaymentIntent(clientSecret: string, element: StripeElement, data: StripeConfirmPaymentIntentData): Promise<StripeConfirmPaymentIntentResult>
+  confirmPaymentIntent(clientSecret: string, element: StripeElement, data: StripeConfirmPaymentIntentData): Promise<StripePaymentResult>;
   /**
    * @param clientSecret the client secret of the PaymentIntent.
    * @param data to be sent with the request.
    */
-  confirmPaymentIntent(clientSecret: string, data: StripeConfirmPaymentIntentData2): Promise<StripeConfirmPaymentIntentResult>
+  confirmPaymentIntent(clientSecret: string, data: StripeConfirmPaymentIntentData2): Promise<StripePaymentResult>;
+  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?): Promise<StripePaymentResult>;
+  /**
+   * Use stripe.handleCardPayment(clientSecret, data) to advance the PaymentIntent
+   * towards completion when you are not gathering payment method information from an Element.
+   * @param clientSecret the client secret of the PaymentIntent.
+   * @param data to be sent with the request.
+   */
+  handleCardPayment(clientSecret: string, data?: StripeHandleCardPaymentData2): Promise<StripePaymentResult>;
   createToken();
   createSource();
   retrieveSource();
   redirectToCheckout();
   retrievePaymentIntent();
-  handleCardPayment();
 }
 
 export interface StripeAmount {
@@ -477,7 +484,7 @@ export interface StripeConfirmPaymentIntentData2 {
   save_payment_method?: boolean;
 }
 
-export type StripeConfirmPaymentIntentResult = (
+export type StripePaymentResult = (
   | {
     paymentIntent: StripeApiPaymentIntent;
   }
@@ -485,6 +492,17 @@ export type StripeConfirmPaymentIntentResult = (
     error: StripeApiError;
   }
 );
+
+export interface StripeHandleCardPaymentData2 {
+  source: string;
+  source_data: {
+    owner?: object;
+    token: string;
+  };
+  shipping?: object;
+  receipt_email?: string;
+  save_payment_method?: boolean;
+}
 
 export interface StripeApiPaymentIntent {
   id: string;
