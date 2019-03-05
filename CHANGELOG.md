@@ -1,3 +1,12 @@
+# [1.3.0](https://github.com/streamich/stripe-web/compare/v1.2.1...v1.3.0) (2019-03-05)
+
+
+### Features
+
+* 🎸 add .confirmPaymentIntent() typings ([9d87681](https://github.com/streamich/stripe-web/commit/9d87681))
+* 🎸 add .handleCardPayment() typings ([71fb60e](https://github.com/streamich/stripe-web/commit/71fb60e))
+* 🎸 add Stripe global options typings ([694d203](https://github.com/streamich/stripe-web/commit/694d203))
+
 ## [1.2.1](https://github.com/streamich/stripe-web/compare/v1.2.0...v1.2.1) (2019-03-05)
 
 
