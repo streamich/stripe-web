@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/streamich/stripe-web/compare/v1.3.0...v1.3.1) (2019-03-05)
+
+
+### Bug Fixes
+
+* 🐛 make payment intent restult properties optional ([eef0e9f](https://github.com/streamich/stripe-web/commit/eef0e9f))
+
 # [1.3.0](https://github.com/streamich/stripe-web/compare/v1.2.1...v1.3.0) (2019-03-05)
 
 
