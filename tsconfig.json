@@ -10,7 +10,7 @@
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "experimentalDecorators": true,
-    "importHelpers": false,
+    "importHelpers": true,
     "pretty": true,
     "sourceMap": true,
     "strict": true,
