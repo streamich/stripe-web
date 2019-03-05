@@ -40,18 +40,38 @@ export const getStripe = (): StripeGlobal => {
   return window.Stripe;
 };
 
-export type StripeGlobal = (pk: string) => Stripe;
+export interface StripeInitOptions {
+  stripeAccount?: string;
+  betas?: string[];
+}
+
+export type StripeGlobal = (pk: string, options: StripeInitOptions) => Stripe;
 
 export interface Stripe {
   paymentRequest(options: StripePaymentRequestOptions): StripePaymentRequest;
   elements(options?: StripeElementsOptions): StripeElements;
+  /**
+   * See https://stripe.com/docs/stripe-js/reference#stripe-confirm-payment-intent
+   */
+  confirmPaymentIntent(clientSecret: string, element: StripeElement, data: StripeConfirmPaymentIntentData): Promise<StripePaymentResult>;
+  /**
+   * @param clientSecret the client secret of the PaymentIntent.
+   * @param data to be sent with the request.
+   */
+  confirmPaymentIntent(clientSecret: string, data: StripeConfirmPaymentIntentData2): Promise<StripePaymentResult>;
+  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?): Promise<StripePaymentResult>;
+  /**
+   * Use stripe.handleCardPayment(clientSecret, data) to advance the PaymentIntent
+   * towards completion when you are not gathering payment method information from an Element.
+   * @param clientSecret the client secret of the PaymentIntent.
+   * @param data to be sent with the request.
+   */
+  handleCardPayment(clientSecret: string, data?: StripeHandleCardPaymentData2): Promise<StripePaymentResult>;
   createToken();
   createSource();
   retrieveSource();
   redirectToCheckout();
   retrievePaymentIntent();
-  handleCardPayment();
-  confirmPaymentIntent();
 }
 
 export interface StripeAmount {
@@ -411,4 +431,120 @@ export interface StripeElement {
    */
   unmount();
   update();
+}
+
+export interface StripeConfirmPaymentIntentData {
+}
+
+export interface StripeConfirmPaymentIntentData2 {
+  /**
+   * Only one of `return_url` or `use_stripe_sdk` is required. If you are handling
+   * next actions yourself, pass in a `return_url`. If the subsequent action is
+   * `redirect_to_url`, this URL will be used on the return path for the redirect.
+   * If you want to confirm the PaymentIntent and then later use `stripe.handleCardPayment`
+   * to complete the payment, set `use_stripe_sdk` to `true` instead.
+   */
+  return_url?: string;
+  /**
+   * Only one of `return_url` or `use_stripe_sdk` is required. If you are handling
+   * next actions yourself, pass in a `return_url`. If the subsequent action is
+   * `redirect_to_url`, this URL will be used on the return path for the redirect.
+   * If you want to confirm the PaymentIntent and then later use `stripe.handleCardPayment`
+   * to complete the payment, set `use_stripe_sdk` to `true` instead.
+   */
+  use_stripe_sdk?: boolean;
+  /**
+   * Only one of `source_data` and `source` is required. Use source to specify an
+   * existing source to use for this payment. Use `source_data` to convert a token
+   * to a source and to supply additional data relevant to the payment method.
+   */
+  source?: string;
+  /**
+   * Only one of `source_data` and `source` is required. Use source to specify an
+   * existing source to use for this payment. Use `source_data` to convert a token
+   * to a source and to supply additional data relevant to the payment method.
+   */
+  source_data?: {
+    owner: object;
+    token: string;
+  }
+  /**
+   * The [shipping details](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping)
+   * ffor the payment, if collected.
+   */
+  shipping?: object;
+  /**
+   * Email address that the receipt for the resulting payment will be sent to.
+   */
+  receipt_email?: string;
+  /**
+   * If the PaymentIntent is associated with a customer and this parameter is set to `true`,
+   * the provided source will be attached to the customer. Default is `false`.
+   */
+  save_payment_method?: boolean;
+}
+
+export type StripePaymentResult = (
+  | {
+    paymentIntent: StripeApiPaymentIntent;
+  }
+  | {
+    error: StripeApiError;
+  }
+);
+
+export interface StripeHandleCardPaymentData2 {
+  source: string;
+  source_data: {
+    owner?: object;
+    token: string;
+  };
+  shipping?: object;
+  receipt_email?: string;
+  save_payment_method?: boolean;
+}
+
+export interface StripeApiPaymentIntent {
+  id: string;
+  object: 'payment_intent',
+  amount: number;
+  amount_capturable: number;
+  amount_received: number;
+  application: string;
+  application_fee_amount: number;
+  canceled_at: number;
+  cancellation_reason: string;
+  capture_method: string;
+  charges: any[];
+  client_secret: string;
+  confirmation_method: string;
+  created: number;
+  currency: string;
+  customer: string;
+  description: string;
+  last_payment_error: object;
+  livemode: boolean;
+  metadata: object;
+  next_action: object;
+  on_behalf_of: string;
+  payment_method_types: string[];
+  receipt_email: string;
+  review: string;
+  shipping: object;
+  source: string;
+  statement_descriptor: string;
+  status: 'requires_payment_method' | 'requires_confirmation' | 'requires_action' | 'processing' | 'requires_authorization' | 'requires_capture' | 'canceled' | 'succeeded';
+  transfer_data: object;
+  transfer_group: string;
+}
+
+export interface StripeApiError {
+  type: 'api_connection_error' | 'api_error' | 'authentication_error' | 'card_error' | 'idempotency_error' | 'invalid_request_error' | 'rate_limit_error';
+  charge: string;
+  code: string;
+  decline_code: string;
+  doc_url: string;
+  message: string;
+  param: string;
+  source: object;
 }
