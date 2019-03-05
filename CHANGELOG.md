@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/streamich/stripe-web/compare/v1.1.1...v1.2.0) (2019-03-05)
+
+
+### Features
+
+* 🎸 improve paymentRequest() typings ([106bb2b](https://github.com/streamich/stripe-web/commit/106bb2b))
+
 ## [1.1.1](https://github.com/streamich/stripe-web/compare/v1.1.0...v1.1.1) (2019-03-04)
 
 
