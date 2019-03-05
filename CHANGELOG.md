@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/streamich/stripe-web/compare/v1.2.0...v1.2.1) (2019-03-05)
+
+
+### Bug Fixes
+
+* 🐛 require tslib helpers ([563f02c](https://github.com/streamich/stripe-web/commit/563f02c))
+
 # [1.2.0](https://github.com/streamich/stripe-web/compare/v1.1.1...v1.2.0) (2019-03-05)
 
 
