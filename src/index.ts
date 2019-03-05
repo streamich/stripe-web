@@ -484,14 +484,10 @@ export interface StripeConfirmPaymentIntentData2 {
   save_payment_method?: boolean;
 }
 
-export type StripePaymentResult = (
-  | {
-    paymentIntent: StripeApiPaymentIntent;
-  }
-  | {
-    error: StripeApiError;
-  }
-);
+export interface StripePaymentResult {
+  paymentIntent?: StripeApiPaymentIntent;
+  error?: StripeApiError;
+}
 
 export interface StripeHandleCardPaymentData2 {
   source: string;
