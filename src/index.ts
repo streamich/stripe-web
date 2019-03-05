@@ -40,7 +40,12 @@ export const getStripe = (): StripeGlobal => {
   return window.Stripe;
 };
 
-export type StripeGlobal = (pk: string) => Stripe;
+export interface StripeInitOptions {
+  stripeAccount?: string;
+  betas?: string[];
+}
+
+export type StripeGlobal = (pk: string, options: StripeInitOptions) => Stripe;
 
 export interface Stripe {
   paymentRequest(options: StripePaymentRequestOptions): StripePaymentRequest;
