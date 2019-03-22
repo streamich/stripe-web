@@ -59,7 +59,28 @@ export interface Stripe {
    * @param data to be sent with the request.
    */
   confirmPaymentIntent(clientSecret: string, data: StripeConfirmPaymentIntentData2): Promise<StripePaymentResult>;
-  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?): Promise<StripePaymentResult>;
+  /**
+   * Use `stripe.handleCardPayment(clientSecret, cardElement[, data])` when the customer submits your payment form.
+   * It will gather payment information from `cardElement`, along with any other `data` you provide,
+   * and attempt to advance the PaymentIntent towards completion.
+   *
+   * If you are using [dynamic 3D Secure](https://stripe.com/docs/payments/3d-secure#three-ds-radar), `handleCardPayment`
+   * will trigger your Radar rules to execute and may open a dialog for your customer to authenticate their payment.
+   *
+   * Note that `stripe.handleCardPayment` may take several seconds to complete. During that time,
+   * you should disable your form from being resubmitted and show a waiting indicator like a spinner.
+   * If you receive an error result, you should be sure to show that error to the customer,
+   * re-enable the form, and hide the waiting indicator.
+   *
+   * Additionally, `stripe.handleCardPayment` can sometimes trigger a [3D Secure](https://stripe.com/docs/payments/3d-secure) challenge.
+   * The 3DS challenge requires a context switch that can be hard to follow on a screen-reader.
+   * Make sure that your form is accessible by ensuring that success or error messages are clearly read out.
+   *
+   * @param clientSecret the client secret of the PaymentIntent.
+   * @param cardElement a card Element that will be used to create a payment method.
+   * @param data to be sent with the request.
+   */
+  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?: StripeHandleCardPaymentData1): Promise<StripePaymentResult>;
   /**
    * Use stripe.handleCardPayment(clientSecret, data) to advance the PaymentIntent
    * towards completion when you are not gathering payment method information from an Element.
@@ -71,8 +92,7 @@ export interface Stripe {
   createSource();
   retrieveSource();
   /**
-   *
-   * @param opts Use `stripe.redirectToCheckout` to redirect your customers to [Checkout](https://stripe.com/docs/payments/checkout),
+   * Use `stripe.redirectToCheckout` to redirect your customers to [Checkout](https://stripe.com/docs/payments/checkout),
    * a Stripe-hosted page to securely collect payment information. When the customer completes their purchase,
    * they are redirected back to your website.
    */
@@ -566,15 +586,58 @@ export interface StripePaymentResult {
   error?: StripeApiError;
 }
 
+export interface StripeHandleCardPaymentData1 {
+  source_data: {
+    owner?: StripeOwnerAPIOwner;
+  };
+  /**
+   * The [shipping details API](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping) for the payment, if collected.
+   */
+  shipping?: object;
+  /**
+   * Email address that the receipt for the resulting payment will be sent to.
+   */
+  receipt_email?: string;
+  /**
+   * If the PaymentIntent is associated with a customer and this parameter is set to `true`,
+   * the provided payment method will be attached to the customer. Default is `false`.
+   */
+  save_payment_method?: boolean;
+}
+
 export interface StripeHandleCardPaymentData2 {
   source: string;
   source_data: {
-    owner?: object;
+    owner?: StripeOwnerAPIOwner;
     token: string;
   };
+  /**
+   * The [shipping details API](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping) for the payment, if collected.
+   */
   shipping?: object;
+  /**
+   * Email address that the receipt for the resulting payment will be sent to.
+   */
   receipt_email?: string;
+  /**
+   * If the PaymentIntent is associated with a customer and this parameter is set to `true`,
+   * the provided payment method will be attached to the customer. Default is `false`.
+   */
   save_payment_method?: boolean;
+}
+
+export interface StripeOwnerAPIOwner {
+  address?: {
+    city?: string;
+    country?: string;
+    line1?: string;
+    line2?: string;
+    postal_code?: string;
+    state?: string;
+  };
+  email?: string;
+  name?: string;
+  phone?: string;
 }
 
 export interface StripeApiPaymentIntent {
