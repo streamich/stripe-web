@@ -70,9 +70,76 @@ export interface Stripe {
   createToken();
   createSource();
   retrieveSource();
-  redirectToCheckout();
+  /**
+   *
+   * @param opts Use `stripe.redirectToCheckout` to redirect your customers to [Checkout](https://stripe.com/docs/payments/checkout),
+   * a Stripe-hosted page to securely collect payment information. When the customer completes their purchase,
+   * they are redirected back to your website.
+   */
+  redirectToCheckout(opts: StripeRedirectToCheckoutOptions): Promise<any>;
   retrievePaymentIntent();
 }
+
+interface StripeRedirectToCheckoutOptions {
+  /**
+   * An array of objects representing the items that your customer would like to
+   * purchase. These items are shown as line items in the Checkout interface and
+   * make up the total amount to be collected by Checkout.
+   */
+  items: Array<StripePlanDetails | StripeProductDetails>;
+  /**
+   * The URL to which Stripe should send customers when payment is complete.
+   */
+  successUrl: string;
+  /**
+   * The URL to which Stripe should send customers when payment is canceled.
+   */
+  cancelUrl: string;
+  /**
+   * A unique string to reference the Checkout session. This can be a customer
+   * ID, a cart ID, or similar. It is included in the `checkout.session.completed`
+   * webhook and can be used to fulfill the purchase.
+   */
+  clientReferenceId?: string;
+  /**
+   * The email address used to create the customer object. If you already know
+   * your customer's email address, use this attribute to prefill it on Checkout.
+   */
+  customerEmail?: string;
+  /**
+   * This is the ID of the Checkout Session API that is used in Checkout's server integration.
+   */
+  sessionId?: string;
+  /**
+   * The IETF language tag of the locale to display Checkout in. Default is `'auto'`
+   * (Stripe detects the locale of the browser).
+   */
+  locale?: StripeLocale;
+}
+
+interface StripePlanDetails {
+  /**
+   * The ID of the plan that the customer would like to subscribe to.
+   */
+  plan: string;
+  /**
+   * The quantity of units for the item.
+   */
+  quantity: number;
+}
+
+interface StripeProductDetails {
+  /**
+   * The ID of the SKU that the customer would like to purchase.
+   */
+  sku: string,
+  /**
+   * The quantity of units for the item.
+   */
+  quantity: number
+}
+
+export type StripeLocale = 'da' | 'de' | 'en' | 'es' | 'fi' | 'fr' | 'it' | 'ja' | 'nb' | 'nl' | 'pl' | 'pt' | 'sv' | 'zh';
 
 export interface StripeAmount {
   amount: number;
