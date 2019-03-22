@@ -1,3 +1,12 @@
+# [1.5.0](https://github.com/streamich/stripe-web/compare/v1.4.0...v1.5.0) (2019-03-22)
+
+
+### Features
+
+* 🎸 add addEventListener methods and error interface ([2c0590d](https://github.com/streamich/stripe-web/commit/2c0590d))
+* 🎸 add handleCardPayment() with cardElement method ([09eb817](https://github.com/streamich/stripe-web/commit/09eb817))
+* 🎸 add redirectToCheckout() typings ([569d670](https://github.com/streamich/stripe-web/commit/569d670)), closes [#6](https://github.com/streamich/stripe-web/issues/6)
+
 # [1.4.0](https://github.com/streamich/stripe-web/compare/v1.3.1...v1.4.0) (2019-03-06)
 
 
