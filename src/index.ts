@@ -395,20 +395,30 @@ export interface StripeElements {
   create(type: 'iban', options?: StripeElementOptionsIban): StripeElement;
 }
 
+export interface StripeElementChangeEventPayload {
+  empty: boolean;
+  complete: boolean;
+  error: {
+    type: 'validation_error';
+    message: string;
+    code: number | string;
+  };
+  value?: string | object;
+  brand?: string;
+  country?: string;
+  bankName?: string;
+}
+
 export interface StripeElement {
   mount(domElement: string | HTMLElement);
   on(event: 'blur' | 'change' | 'click' | 'focus' | 'ready', handler: (payload?: object) => void);
   on(event: 'blur', handler: () => void);
-  on(event: 'change', handler: (payload: {
-    empty: boolean;
-    complete: boolean;
-    error: object;
-    value?: string | object;
-    brand?: string;
-    country?: string;
-    bankName?: string;
-  }) => void);
+  on(event: 'change', handler: (payload: StripeElementChangeEventPayload) => void);
   on(event: 'click', handler: (payload: {preventDefault: () => void}) => void);
+  addEventListener(event: 'blur' | 'change' | 'click' | 'focus' | 'ready', handler: (payload?: object) => void);
+  addEventListener(event: 'blur', handler: () => void);
+  addEventListener(event: 'change', handler: (payload: StripeElementChangeEventPayload) => void);
+  addEventListener(event: 'click', handler: (payload: {preventDefault: () => void}) => void);
   /**
    * Blurs the Element.
    */
