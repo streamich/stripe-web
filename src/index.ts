@@ -59,7 +59,28 @@ export interface Stripe {
    * @param data to be sent with the request.
    */
   confirmPaymentIntent(clientSecret: string, data: StripeConfirmPaymentIntentData2): Promise<StripePaymentResult>;
-  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?): Promise<StripePaymentResult>;
+  /**
+   * Use `stripe.handleCardPayment(clientSecret, cardElement[, data])` when the customer submits your payment form.
+   * It will gather payment information from `cardElement`, along with any other `data` you provide,
+   * and attempt to advance the PaymentIntent towards completion.
+   *
+   * If you are using [dynamic 3D Secure](https://stripe.com/docs/payments/3d-secure#three-ds-radar), `handleCardPayment`
+   * will trigger your Radar rules to execute and may open a dialog for your customer to authenticate their payment.
+   *
+   * Note that `stripe.handleCardPayment` may take several seconds to complete. During that time,
+   * you should disable your form from being resubmitted and show a waiting indicator like a spinner.
+   * If you receive an error result, you should be sure to show that error to the customer,
+   * re-enable the form, and hide the waiting indicator.
+   *
+   * Additionally, `stripe.handleCardPayment` can sometimes trigger a [3D Secure](https://stripe.com/docs/payments/3d-secure) challenge.
+   * The 3DS challenge requires a context switch that can be hard to follow on a screen-reader.
+   * Make sure that your form is accessible by ensuring that success or error messages are clearly read out.
+   *
+   * @param clientSecret the client secret of the PaymentIntent.
+   * @param cardElement a card Element that will be used to create a payment method.
+   * @param data to be sent with the request.
+   */
+  handleCardPayment(clientSecret: string, cardElement: StripeElement, data?: StripeHandleCardPaymentData1): Promise<StripePaymentResult>;
   /**
    * Use stripe.handleCardPayment(clientSecret, data) to advance the PaymentIntent
    * towards completion when you are not gathering payment method information from an Element.
@@ -70,9 +91,75 @@ export interface Stripe {
   createToken();
   createSource();
   retrieveSource();
-  redirectToCheckout();
+  /**
+   * Use `stripe.redirectToCheckout` to redirect your customers to [Checkout](https://stripe.com/docs/payments/checkout),
+   * a Stripe-hosted page to securely collect payment information. When the customer completes their purchase,
+   * they are redirected back to your website.
+   */
+  redirectToCheckout(opts: StripeRedirectToCheckoutOptions): Promise<any>;
   retrievePaymentIntent();
 }
+
+interface StripeRedirectToCheckoutOptions {
+  /**
+   * An array of objects representing the items that your customer would like to
+   * purchase. These items are shown as line items in the Checkout interface and
+   * make up the total amount to be collected by Checkout.
+   */
+  items: Array<StripePlanDetails | StripeProductDetails>;
+  /**
+   * The URL to which Stripe should send customers when payment is complete.
+   */
+  successUrl: string;
+  /**
+   * The URL to which Stripe should send customers when payment is canceled.
+   */
+  cancelUrl: string;
+  /**
+   * A unique string to reference the Checkout session. This can be a customer
+   * ID, a cart ID, or similar. It is included in the `checkout.session.completed`
+   * webhook and can be used to fulfill the purchase.
+   */
+  clientReferenceId?: string;
+  /**
+   * The email address used to create the customer object. If you already know
+   * your customer's email address, use this attribute to prefill it on Checkout.
+   */
+  customerEmail?: string;
+  /**
+   * This is the ID of the Checkout Session API that is used in Checkout's server integration.
+   */
+  sessionId?: string;
+  /**
+   * The IETF language tag of the locale to display Checkout in. Default is `'auto'`
+   * (Stripe detects the locale of the browser).
+   */
+  locale?: StripeLocale;
+}
+
+interface StripePlanDetails {
+  /**
+   * The ID of the plan that the customer would like to subscribe to.
+   */
+  plan: string;
+  /**
+   * The quantity of units for the item.
+   */
+  quantity: number;
+}
+
+interface StripeProductDetails {
+  /**
+   * The ID of the SKU that the customer would like to purchase.
+   */
+  sku: string,
+  /**
+   * The quantity of units for the item.
+   */
+  quantity: number
+}
+
+export type StripeLocale = 'da' | 'de' | 'en' | 'es' | 'fi' | 'fr' | 'it' | 'ja' | 'nb' | 'nl' | 'pl' | 'pt' | 'sv' | 'zh';
 
 export interface StripeAmount {
   amount: number;
@@ -395,20 +482,30 @@ export interface StripeElements {
   create(type: 'iban', options?: StripeElementOptionsIban): StripeElement;
 }
 
+export interface StripeElementChangeEventPayload {
+  empty: boolean;
+  complete: boolean;
+  error: {
+    type: 'validation_error';
+    message: string;
+    code: number | string;
+  };
+  value?: string | object;
+  brand?: string;
+  country?: string;
+  bankName?: string;
+}
+
 export interface StripeElement {
   mount(domElement: string | HTMLElement);
   on(event: 'blur' | 'change' | 'click' | 'focus' | 'ready', handler: (payload?: object) => void);
   on(event: 'blur', handler: () => void);
-  on(event: 'change', handler: (payload: {
-    empty: boolean;
-    complete: boolean;
-    error: object;
-    value?: string | object;
-    brand?: string;
-    country?: string;
-    bankName?: string;
-  }) => void);
+  on(event: 'change', handler: (payload: StripeElementChangeEventPayload) => void);
   on(event: 'click', handler: (payload: {preventDefault: () => void}) => void);
+  addEventListener(event: 'blur' | 'change' | 'click' | 'focus' | 'ready', handler: (payload?: object) => void);
+  addEventListener(event: 'blur', handler: () => void);
+  addEventListener(event: 'change', handler: (payload: StripeElementChangeEventPayload) => void);
+  addEventListener(event: 'click', handler: (payload: {preventDefault: () => void}) => void);
   /**
    * Blurs the Element.
    */
@@ -489,15 +586,58 @@ export interface StripePaymentResult {
   error?: StripeApiError;
 }
 
+export interface StripeHandleCardPaymentData1 {
+  source_data: {
+    owner?: StripeOwnerAPIOwner;
+  };
+  /**
+   * The [shipping details API](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping) for the payment, if collected.
+   */
+  shipping?: object;
+  /**
+   * Email address that the receipt for the resulting payment will be sent to.
+   */
+  receipt_email?: string;
+  /**
+   * If the PaymentIntent is associated with a customer and this parameter is set to `true`,
+   * the provided payment method will be attached to the customer. Default is `false`.
+   */
+  save_payment_method?: boolean;
+}
+
 export interface StripeHandleCardPaymentData2 {
   source: string;
   source_data: {
-    owner?: object;
+    owner?: StripeOwnerAPIOwner;
     token: string;
   };
+  /**
+   * The [shipping details API](https://stripe.com/docs/api/payment_intents/confirm#confirm_payment_intent-shipping) for the payment, if collected.
+   */
   shipping?: object;
+  /**
+   * Email address that the receipt for the resulting payment will be sent to.
+   */
   receipt_email?: string;
+  /**
+   * If the PaymentIntent is associated with a customer and this parameter is set to `true`,
+   * the provided payment method will be attached to the customer. Default is `false`.
+   */
   save_payment_method?: boolean;
+}
+
+export interface StripeOwnerAPIOwner {
+  address?: {
+    city?: string;
+    country?: string;
+    line1?: string;
+    line2?: string;
+    postal_code?: string;
+    state?: string;
+  };
+  email?: string;
+  name?: string;
+  phone?: string;
 }
 
 export interface StripeApiPaymentIntent {
