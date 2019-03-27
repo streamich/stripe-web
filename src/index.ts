@@ -435,7 +435,7 @@ export interface StripeElementOptions {
 export interface StripeElementOptionsCard extends StripeElementOptions {
   value?: object;
   hidePostalCode?: boolean;
-  iconsStyle?: string;
+  iconStyle?: 'solid' | 'default';
   hideIcon?: boolean;
   disabled?: boolean;
 }
