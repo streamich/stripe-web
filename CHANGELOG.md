@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/streamich/stripe-web/compare/v1.5.0...v1.5.1) (2019-03-27)
+
+
+### Bug Fixes
+
+* 🐛 iconsStyle -> iconStyle ([ea04507](https://github.com/streamich/stripe-web/commit/ea04507))
+
 # [1.5.0](https://github.com/streamich/stripe-web/compare/v1.4.0...v1.5.0) (2019-03-22)
 
 
